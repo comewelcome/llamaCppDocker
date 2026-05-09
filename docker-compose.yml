@@ -22,7 +22,7 @@ services:
 
     command: >
       -m /models/${MODEL_FILE}
-      --mmproj /models/mmproj-Qwen3.6-27B-BF16.gguf
+      --mmproj /models/${MM_PROJ_FILE}
       --host 0.0.0.0
       --port ${PORT}
       --ctx-size ${CTX_SIZE}
@@ -30,9 +30,11 @@ services:
       --threads ${THREADS}
       --batch-size ${BATCH_SIZE}
       --ubatch-size ${BATCH_SIZE}
-      --parallel 1
-      -np 1
-       --tensor-split ${TENSOR_SPLIT}
-       --flash-attn on
-       --no-warmup
-       --mmap
+      --parallel ${PARALLEL}
+      -np ${PARALLEL}
+      --tensor-split ${TENSOR_SPLIT}
+      --flash-attn on
+      --no-warmup
+      --mmap
+      --cache-type-k q8_0
+      --cache-type-v q8_0
