@@ -1,0 +1,40 @@
+services:
+  llama:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: llama-cpp
+
+    ports:
+      - "${PORT}:${PORT}"
+
+    volumes:
+      - ${MODEL_PATH}:/models:ro
+
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    command: >
+      -m /models/${MODEL_FILE}
+      --mmproj /models/mmproj-Qwen3.6-27B-BF16.gguf
+      --host 0.0.0.0
+      --port ${PORT}
+      --ctx-size ${CTX_SIZE}
+      --n-gpu-layers ${GPU_LAYERS}
+      --threads ${THREADS}
+      --batch-size ${BATCH_SIZE}
+      --ubatch-size ${BATCH_SIZE}
+      --parallel 1
+      -np 1
+      --tensor-split ${TENSOR_SPLIT}
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn on
+      --no-warmup
+      --mlock
