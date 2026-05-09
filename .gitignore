@@ -1,0 +1,12 @@
+# Environment variables (contains local paths)
+.env
+
+# Cache directory
+cache/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -32,9 +32,7 @@ services:
       --ubatch-size ${BATCH_SIZE}
       --parallel 1
       -np 1
-      --tensor-split ${TENSOR_SPLIT}
-      --cache-type-k q8_0
-      --cache-type-v q8_0
-      --flash-attn on
-      --no-warmup
-      --mlock
+       --tensor-split ${TENSOR_SPLIT}
+       --flash-attn on
+       --no-warmup
+       --mmap
