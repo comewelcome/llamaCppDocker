@@ -3,6 +3,7 @@
 
 # Cache directory
 cache/
+modele/
 
 # Logs
 *.log

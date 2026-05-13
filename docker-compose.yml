@@ -1,16 +1,18 @@
 services:
   llama:
-    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    build: .
     container_name: llama-cpp
+    restart: unless-stopped
 
     ports:
-      - "${PORT}:${PORT}"
+      - "${PORT:-8080}:8080"
 
     volumes:
-      - ${MODEL_PATH}:/models:ro
+      - ./modele:/app/modele
 
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+      - LLAMA_CACHE=/app/modele
 
     deploy:
       resources:
@@ -21,20 +23,9 @@ services:
               capabilities: [gpu]
 
     command: >
-      -m /models/${MODEL_FILE}
-      --mmproj /models/${MM_PROJ_FILE}
-      --host 0.0.0.0
-      --port ${PORT}
-      --ctx-size ${CTX_SIZE}
-      --n-gpu-layers ${GPU_LAYERS}
-      --threads ${THREADS}
-      --batch-size ${BATCH_SIZE}
-      --ubatch-size ${BATCH_SIZE}
-      --parallel ${PARALLEL}
-      -np ${PARALLEL}
-      --tensor-split ${TENSOR_SPLIT}
-      --flash-attn on
-      --no-warmup
-      --mmap
-      --cache-type-k q8_0
-      --cache-type-v q8_0
+      -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-Q4_K_XL
+      -ngl 99 -c 262144 -fa on -np 1
+      --spec-type draft-mtp --spec-draft-n-max 2
+      --cache-type-k q8_0 --cache-type-v q8_0
+      --log-verbose --log-colors on
+      --host 0.0.0.0 --port 8080
