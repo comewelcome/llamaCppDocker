@@ -5,14 +5,14 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${PORT:-8080}:8080"
+      - "${PORT:-1234}:8080"
 
     volumes:
       - ./modele:/app/modele
 
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-      - LLAMA_CACHE=/app/modele
+      - LLAMA_CACHE=${LLAMA_CACHE:-/app/modele}
 
     deploy:
       resources:
@@ -23,12 +23,14 @@ services:
               capabilities: [gpu]
 
     command: >
-      -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-Q4_K_XL
+      -hf ${HF_REPO}
       -ngl ${GPU_LAYERS:-99}
-      -c ${CTX_SIZE:-131072}
+      -c ${CTX_SIZE:-262144}
+      -t ${THREADS:-6}
+      -b ${BATCH_SIZE:-512}
       -fa on
       -np ${PARALLEL:-1}
-      --tensor-split ${TENSOR_SPLIT:-0.65,0.35}
+      --tensor-split ${TENSOR_SPLIT:-0.75,0.25}
       --cache-type-k q4_0
       --cache-type-v q4_0
       --spec-type draft-mtp --spec-draft-n-max 2

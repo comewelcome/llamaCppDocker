@@ -22,7 +22,8 @@ RUN cp llama.cpp/build/bin/llama-* llama.cpp/
 RUN mkdir -p /app/modele
 
 # llama.cpp uses LLAMA_CACHE environment variable to decide where to store models
-ENV LLAMA_CACHE=/app/modele
-ENV XDG_CACHE_HOME=/app/modele
+ARG LLAMA_CACHE=/app/modele
+ENV LLAMA_CACHE=${LLAMA_CACHE}
+ENV XDG_CACHE_HOME=${LLAMA_CACHE}
 
 ENTRYPOINT ["./llama.cpp/llama-server"]
