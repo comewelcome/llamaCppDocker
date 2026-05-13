@@ -24,13 +24,8 @@ services:
 
     command: >
       -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-Q4_K_XL
-      -ngl ${GPU_LAYERS:-99}
-      -c ${CTX_SIZE:-131072}
-      -fa on
-      -np ${PARALLEL:-1}
-      --tensor-split ${TENSOR_SPLIT:-0.65,0.35}
-      --cache-type-k q4_0
-      --cache-type-v q4_0
+      -ngl 99 -c 262144 -fa on -np 1
       --spec-type draft-mtp --spec-draft-n-max 2
+      --cache-type-k q8_0 --cache-type-v q8_0
       --log-verbose --log-colors on
       --host 0.0.0.0 --port 8080
