@@ -24,6 +24,7 @@ services:
 
     command: >
       -hf ${HF_REPO}
+      --mmproj /app/modele/${MMPROJ}
       -ngl ${GPU_LAYERS:-99}
       -c ${CTX_SIZE:-262144}
       -t ${THREADS:-6}

@@ -31,6 +31,7 @@ Créez un fichier `.env` à partir de `.env.example` :
 | Variable | Description | Défaut |
 |---|---|---|
 | `HF_REPO` | Repository HuggingFace au format `owner/repo` | — |
+| `MMPROJ` | Chemin du projecteur multimodal (pour les images) | — |
 | `CTX_SIZE` | Taille du contexte en tokens | `262144` |
 | `GPU_LAYERS` | Nombre de couches offloadées sur GPU (`999` = tout) | `99` |
 | `THREADS` | Nombre de threads CPU | `6` |
@@ -74,6 +75,16 @@ Activé via `-fa on` pour un calcul d'attention plus rapide et moins gourmand en
 
 ### Multi-GPU
 Le paramètre `--tensor-split` permet de répartir le modèle sur plusieurs GPU. Ajustez `TENSOR_SPLIT` selon votre configuration (ex: `0.65,0.35` pour un GPU principal + un secondaire).
+
+### Support Multimodal (Images)
+Pour activer le support des images, vous devez spécifier le chemin du fichier `mmproj` dans votre fichier `.env`. Ce fichier est généralement téléchargé avec le modèle.
+
+Exemple pour Qwen3.6 :
+```env
+MMPROJ=models--unsloth--Qwen3.6-27B-MTP-GGUF/snapshots/53b097416d6346f849b530e4bc1b5590dfe9d758/mmproj-BF16.gguf
+```
+
+Une fois activé, vous pouvez envoyer des images via l'API (format compatible OpenAI Vision).
 
 ## 📁 Structure du projet
 
