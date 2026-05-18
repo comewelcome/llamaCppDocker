@@ -34,6 +34,7 @@ services:
       --tensor-split ${TENSOR_SPLIT:-0.75,0.25}
       --cache-type-k q4_0
       --cache-type-v q4_0
-      --spec-type draft-mtp --spec-draft-n-max 2
-      --log-verbose --log-colors on
+      --spec-type draft-mtp
+      --spec-draft-n-max 2
+      --spec-draft-p-min 0.75
       --host 0.0.0.0 --port 8080
