@@ -29,12 +29,16 @@ services:
       -c ${CTX_SIZE:-262144}
       -t ${THREADS:-6}
       -b ${BATCH_SIZE:-512}
-      -fa on
+      -fa ${FLASH_ATTENTION:-on}
       -np ${PARALLEL:-1}
       --tensor-split ${TENSOR_SPLIT:-0.75,0.25}
-      --cache-type-k q4_0
-      --cache-type-v q4_0
-      --spec-type draft-mtp
-      --spec-draft-n-max 2
-      --spec-draft-p-min 0.75
+      --cache-type-k ${CACHE_TYPE_K:-q4_0}
+      --cache-type-v ${CACHE_TYPE_V:-q4_0}
+      --spec-type ${SPEC_TYPE:-draft-mtp}
+      --spec-draft-n-max ${SPEC_DRAFT_N_MAX:-2}
+      --spec-draft-p-min ${SPEC_DRAFT_P_MIN:-0.75}
+      --temp ${TEMP:-0.2}
+      --top-k ${TOP_K:-10}
+      --top-p ${TOP_P:-0.9}
+      --repeat-penalty ${REPEAT_PENALTY:-1.05}
       --host 0.0.0.0 --port 8080

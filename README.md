@@ -26,20 +26,72 @@ Le serveur sera accessible sur `http://localhost:${PORT}` (port `1234` par défa
 
 ## ⚙️ Configuration
 
-Créez un fichier `.env` à partir de `.env.example` :
+Tous les paramètres de configuration sont centralisés dans le fichier `.env`. Créez-le à partir de `.env.example` :
+
+### Modèle et HuggingFace
 
 | Variable | Description | Défaut |
 |---|---|---|
-| `HF_REPO` | Repository HuggingFace au format `owner/repo` | — |
-| `MMPROJ` | Chemin du projecteur multimodal (pour les images) | — |
+| `HF_REPO` | Repository HuggingFace au format `owner/repo:filename` | — |
+| `MMPROJ` | Chemin du projecteur multimodal pour les modèles vision (optionnel) | — |
+
+### Contexte et Performance
+
+| Variable | Description | Défaut |
+|---|---|---|
 | `CTX_SIZE` | Taille du contexte en tokens | `262144` |
-| `GPU_LAYERS` | Nombre de couches offloadées sur GPU (`999` = tout) | `99` |
-| `THREADS` | Nombre de threads CPU | `6` |
+| `GPU_LAYERS` | Nombre de couches offloadées sur GPU (`99` = presque tout, `0` = CPU uniquement) | `99` |
+| `THREADS` | Nombre de threads CPU pour l'inférence | `6` |
 | `BATCH_SIZE` | Taille du batch d'évaluation | `512` |
-| `PARALLEL` | Nombre de requêtes parallèles | `1` |
-| `TENSOR_SPLIT` | Répartition multi-GPU (ex: `0.75,0.25` pour 2 GPU) | `0.75,0.25` |
+| `PARALLEL` | Nombre de requêtes parallèles gérées simultanément | `1` |
+
+### GPU et Mémoire
+
+| Variable | Description | Défaut |
+|---|---|---|
+| `TENSOR_SPLIT` | Répartition multi-GPU (ex: `0.75,0.25` pour 2 GPU, `1` pour GPU unique) | `0.75,0.25` |
+
+### Cache KV
+
+| Variable | Description | Défaut |
+|---|---|---|
+| `CACHE_TYPE_K` | Type de quantification du cache key (`q4_0`, `q8_0`, `f16`, `f32`) | `q4_0` |
+| `CACHE_TYPE_V` | Type de quantification du cache value (`q4_0`, `q8_0`, `f16`, `f32`) | `q4_0` |
+
+### Décodage Spéculatif MTP
+
+| Variable | Description | Défaut |
+|---|---|---|
+| `SPEC_TYPE` | Type de décodage spéculatif (`draft-mtp` pour Multi-Token Prediction) | `draft-mtp` |
+| `SPEC_DRAFT_N_MAX` | Nombre maximum de tokens prédits par le modèle de draft | `2` |
+| `SPEC_DRAFT_P_MIN` | Seuil minimum de probabilité pour accepter les tokens draft (0.0 à 1.0) | `0.75` |
+
+### Flash Attention
+
+| Variable | Description | Défaut |
+|---|---|---|
+| `FLASH_ATTENTION` | Activer Flash Attention pour un calcul plus rapide (`on`/`off`) | `on` |
+
+### Paramètres de génération
+
+| Variable | Description | Défaut |
+|---|---|---|
+| `TEMP` | Température d'échantillonnage (0 = déterministe, plus élevé = plus créatif) | `0.2` |
+| `TOP_K` | Nombre maximum de tokens considérés pour chaque prédiction | `10` |
+| `TOP_P` | Seuil de probabilité cumulée pour l'échantillonnage (0.0 à 1.0) | `0.9` |
+| `REPEAT_PENALTY` | Pénalité de répétition (> 1 réduit la répétition, 1 = désactivé) | `1.05` |
+
+### Réseau et Serveur
+
+| Variable | Description | Défaut |
+|---|---|---|
 | `PORT` | Port exposé sur l'hôte | `1234` |
-| `LLAMA_CACHE` | Répertoire cache des modèles | `/app/modele` |
+
+### Stockage
+
+| Variable | Description | Défaut |
+|---|---|---|
+| `LLAMA_CACHE` | Répertoire de cache des modèles | `/app/modele` |
 
 ## 🌐 API
 
@@ -65,19 +117,25 @@ docker compose down
 ## 🧠 Fonctionnalités avancées
 
 ### Décodage spéculatif MTP
-Le serveur utilise `--spec-type draft-mtp --spec-draft-n-max 2` pour prédire plusieurs tokens en avance grâce aux heads MTP du modèle, améliorant la vitesse d'inférence.
+Le serveur utilise `--spec-type draft-mtp` pour prédire plusieurs tokens en avance grâce aux heads MTP du modèle, améliorant la vitesse d'inférence. Ajustez les paramètres via :
+- `SPEC_DRAFT_N_MAX` : nombre de tokens draft maximum
+- `SPEC_DRAFT_P_MIN` : seuil de probabilité minimum pour accepter les tokens
 
 ### Cache KV quantifié
-Les caches key/value utilisent la quantification `q4_0` (`--cache-type-k q4_0 --cache-type-v q4_0`) pour réduire la consommation mémoire liée au contexte.
+Les caches key/value utilisent la quantification configurable via `CACHE_TYPE_K` et `CACHE_TYPE_V`. Les options disponibles sont :
+- `q4_0` : réduit la mémoire au maximum
+- `q8_0` : compromis mémoire/précision
+- `f16` : précision élevée
+- `f32` : précision maximale
 
 ### Flash Attention
-Activé via `-fa on` pour un calcul d'attention plus rapide et moins gourmand en mémoire.
+Activé via `-fa on` par défaut (configurable avec `FLASH_ATTENTION`) pour un calcul d'attention plus rapide et moins gourmand en mémoire.
 
 ### Multi-GPU
-Le paramètre `--tensor-split` permet de répartir le modèle sur plusieurs GPU. Ajustez `TENSOR_SPLIT` selon votre configuration (ex: `0.65,0.35` pour un GPU principal + un secondaire).
+Le paramètre `--tensor-split` permet de répartir le modèle sur plusieurs GPU. Ajustez `TENSOR_SPLIT` selon votre configuration (ex: `0.65,0.35` pour un GPU principal + un secondaire). Pour un GPU unique, utilisez `TENSOR_SPLIT=1`.
 
 ### Support Multimodal (Images)
-Pour activer le support des images, vous devez spécifier le chemin du fichier `mmproj` dans votre fichier `.env`. Ce fichier est généralement téléchargé avec le modèle.
+Pour activer le support des images, spécifiez le chemin du fichier `mmproj` dans votre fichier `.env`. Ce fichier est généralement téléchargé avec le modèle.
 
 Exemple pour Qwen3.6 :
 ```env
@@ -91,7 +149,7 @@ Une fois activé, vous pouvez envoyer des images via l'API (format compatible Op
 ```
 .
 ├── .env            # Configuration personnalisée (ne pas committer)
-├── .env.example    # Template de configuration
+├── .env.example    # Template de configuration avec tous les paramètres
 ├── .gitignore
 ├── docker-compose.yml   # Orchestration Docker
 ├── Dockerfile          # Image CUDA + llama.cpp
