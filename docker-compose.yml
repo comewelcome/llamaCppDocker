@@ -1,19 +1,39 @@
 services:
-  llama:
-    build: .
-    container_name: llama-cpp
-    restart: unless-stopped
-
-    ports:
-      - "${PORT:-1234}:8080"
-
-    volumes:
-      - ./modele:/app/modele
-
+  llama-server:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: llama-server
+    env_file:
+      - .env
+    # En C++, on passe directement l'argument --verbose au binaire
+    command: ["--verbose"] 
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - LLAMA_CACHE=${LLAMA_CACHE:-/app/modele}
-
+      - HF_HOME=/cache
+      - LLAMA_ARG_MODEL=${MODEL:-}
+      - LLAMA_ARG_HF_REPO=${HF_REPO}
+      - LLAMA_ARG_HOST=0.0.0.0
+      - LLAMA_ARG_PORT=${PORT:-8080}
+      - LLAMA_ARG_CTX_SIZE=${CTX_SIZE:-2048}
+      - LLAMA_ARG_N_GPU_LAYERS=${GPU_LAYERS:-0}
+      - LLAMA_ARG_THREADS=${THREADS:-4}
+      - LLAMA_ARG_BATCH_SIZE=${BATCH_SIZE:-512}
+      - LLAMA_ARG_N_PARALLEL=${PARALLEL:-1}
+      - LLAMA_ARG_TENSOR_SPLIT=${TENSOR_SPLIT}
+      - LLAMA_ARG_FLASH_ATTN=${FLASH_ATTENTION}
+      - LLAMA_ARG_CACHE_TYPE_K=${CACHE_TYPE_K}
+      - LLAMA_ARG_CACHE_TYPE_V=${CACHE_TYPE_V}
+      - LLAMA_ARG_DRAFT=${SPEC_DRAFT_N_MAX}
+      - LLAMA_ARG_TEMP=${TEMP}
+      - LLAMA_ARG_TOP_K=${TOP_K}
+      - LLAMA_ARG_TOP_P=${TOP_P}
+      - LLAMA_ARG_REPEAT_PENALTY=${REPEAT_PENALTY}
+      - LLAMA_ARG_PRESENCE_PENALTY=${PRESENCE_PENALTY}
+    volumes:
+      # Monte le dossier des modèles sur l'hôte
+      - ${LLAMA_MODELS:-./models}:/models
+      # Monte le dossier de cache Hugging Face sur l'hôte
+      - ${LLAMA_CACHE:-./cache}:/cache
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
     deploy:
       resources:
         reservations:
@@ -21,24 +41,4 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-
-    command: >
-      -hf ${HF_REPO}
-      --mmproj /app/modele/${MMPROJ}
-      -ngl ${GPU_LAYERS:-99}
-      -c ${CTX_SIZE:-262144}
-      -t ${THREADS:-6}
-      -b ${BATCH_SIZE:-512}
-      -fa ${FLASH_ATTENTION:-on}
-      -np ${PARALLEL:-1}
-      --tensor-split ${TENSOR_SPLIT:-0.75,0.25}
-      --cache-type-k ${CACHE_TYPE_K:-q4_0}
-      --cache-type-v ${CACHE_TYPE_V:-q4_0}
-      --spec-type ${SPEC_TYPE:-draft-mtp}
-      --spec-draft-n-max ${SPEC_DRAFT_N_MAX:-2}
-      --spec-draft-p-min ${SPEC_DRAFT_P_MIN:-0.75}
-      --temp ${TEMP:-0.2}
-      --top-k ${TOP_K:-10}
-      --top-p ${TOP_P:-0.9}
-      --repeat-penalty ${REPEAT_PENALTY:-1.05}
-      --host 0.0.0.0 --port 8080
+    restart: unless-stopped
