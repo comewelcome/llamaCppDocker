@@ -8,6 +8,8 @@ services:
     command: ["--verbose"] 
     environment:
       - HF_HOME=/cache
+      - HF_HUB_CACHE=/cache
+      - TRANSFORMERS_CACHE=/cache
       - LLAMA_ARG_MODEL=${MODEL:-}
       - LLAMA_ARG_HF_REPO=${HF_REPO}
       - LLAMA_ARG_HOST=0.0.0.0
