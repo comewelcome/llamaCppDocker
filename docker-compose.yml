@@ -10,8 +10,9 @@ services:
       - HF_HOME=/cache
       - HF_HUB_CACHE=/cache
       - TRANSFORMERS_CACHE=/cache
-      - LLAMA_ARG_MODEL=${MODEL:-}
-      - LLAMA_ARG_HF_REPO=${HF_REPO}
+      - HF_REPO=
+      - LLAMA_ARG_MODEL=${MODEL:-/models/Qwen3.6-27B-UD-Q5_K_XL.gguf}
+      - LLAMA_ARG_HF_REPO=
       - LLAMA_ARG_HOST=0.0.0.0
       - LLAMA_ARG_PORT=${PORT:-8080}
       - LLAMA_ARG_CTX_SIZE=${CTX_SIZE:-2048}
@@ -24,6 +25,8 @@ services:
       - LLAMA_ARG_CACHE_TYPE_K=${CACHE_TYPE_K}
       - LLAMA_ARG_CACHE_TYPE_V=${CACHE_TYPE_V}
       - LLAMA_ARG_DRAFT=${SPEC_DRAFT_N_MAX}
+      - LLAMA_ARG_SPEC_PMIN=${SPEC_DRAFT_P_MIN}
+      - LLAMA_ARG_SPEC_TYPE=${SPEC_TYPE}
       - LLAMA_ARG_TEMP=${TEMP}
       - LLAMA_ARG_TOP_K=${TOP_K}
       - LLAMA_ARG_TOP_P=${TOP_P}
