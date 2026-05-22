@@ -30,10 +30,8 @@ services:
       - LLAMA_ARG_REPEAT_PENALTY=${REPEAT_PENALTY}
       - LLAMA_ARG_PRESENCE_PENALTY=${PRESENCE_PENALTY}
     volumes:
-      # Monte le dossier des modèles sur l'hôte
-      - ${LLAMA_MODELS:-./models}:/models
-      # Monte le dossier de cache Hugging Face sur l'hôte
-      - ${LLAMA_CACHE:-./cache}:/cache
+       # Monte le dossier de cache Hugging Face sur l'hôte
+       - ${LLAMA_CACHE:-./cache}:/cache
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
     deploy:
