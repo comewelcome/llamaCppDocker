@@ -1,0 +1,10 @@
+models/
+.git/
+*.log
+Dockerfile
+docker-compose.yml
+README.md
+REVIEW.md
+.gitignore
+.dockerignore
+cache/
