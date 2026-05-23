@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     # En C++, on passe directement l'argument --verbose au binaire
-    command: ["--verbose"] 
+    #command: ["--verbose"] 
     environment:
       - HF_HOME=/cache
       - HF_HUB_CACHE=/cache
