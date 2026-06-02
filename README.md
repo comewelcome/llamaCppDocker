@@ -279,6 +279,23 @@ docker compose logs -f llama-server
 docker compose restart llama-server
 ```
 
+## 👁️ Modèles Vision (Multimodal)
+
+Pour utiliser des modèles de vision (comme LLaVA, BakLLaVA ou Qwen2-VL), vous devez spécifier un projecteur multimodal (`mmproj`).
+
+1. Téléchargez le modèle GGUF et son fichier `mmproj` associé dans le dossier `models/`.
+2. Modifiez les variables suivantes dans votre fichier `.env` :
+
+```env
+MODEL=/models/votre-modele-vision.gguf
+MMPROJ=/models/votre-mmproj.gguf
+```
+
+3. Redémarrez le serveur :
+```bash
+docker compose up -d --force-recreate
+```
+
 ## 📄 Licence
 
 Ce projet utilise [llama.cpp](https://github.com/ggml-org/llama.cpp) sous licence MIT.

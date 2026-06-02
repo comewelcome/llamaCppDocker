@@ -4,23 +4,19 @@ services:
     container_name: llama-server
     env_file:
       - .env
-    # En C++, on passe directement l'argument --verbose au binaire
-    #command: ["--verbose"] 
     environment:
       - HF_HOME=/cache
       - HF_HUB_CACHE=/cache
       - TRANSFORMERS_CACHE=/cache
-      - HF_REPO=
-      - LLAMA_ARG_MODEL=${MODEL:-/models/Qwen3.6-27B-UD-Q5_K_XL.gguf}
-      - LLAMA_ARG_HF_REPO=
+      - LLAMA_ARG_MODEL=${MODEL}
+      - LLAMA_ARG_MMPROJ=${MMPROJ}
       - LLAMA_ARG_HOST=0.0.0.0
-      - LLAMA_ARG_PORT=${PORT:-8080}
-      - LLAMA_ARG_CTX_SIZE=${CTX_SIZE:-2048}
-      - LLAMA_ARG_N_GPU_LAYERS=${GPU_LAYERS:-0}
-      - LLAMA_ARG_THREADS=${THREADS:-4}
-      - LLAMA_ARG_BATCH_SIZE=${BATCH_SIZE:-512}
-      - LLAMA_ARG_N_PARALLEL=${PARALLEL:-1}
-      - LLAMA_ARG_TENSOR_SPLIT=${TENSOR_SPLIT}
+      - LLAMA_ARG_PORT=${PORT}
+      - LLAMA_ARG_CTX_SIZE=${CTX_SIZE}
+      - LLAMA_ARG_N_GPU_LAYERS=${GPU_LAYERS}
+      - LLAMA_ARG_THREADS=${THREADS}
+      - LLAMA_ARG_BATCH_SIZE=${BATCH_SIZE}
+      - LLAMA_ARG_N_PARALLEL=${PARALLEL}
       - LLAMA_ARG_FLASH_ATTN=${FLASH_ATTENTION}
       - LLAMA_ARG_CACHE_TYPE_K=${CACHE_TYPE_K}
       - LLAMA_ARG_CACHE_TYPE_V=${CACHE_TYPE_V}
@@ -32,18 +28,20 @@ services:
       - LLAMA_ARG_TOP_P=${TOP_P}
       - LLAMA_ARG_REPEAT_PENALTY=${REPEAT_PENALTY}
       - LLAMA_ARG_PRESENCE_PENALTY=${PRESENCE_PENALTY}
+      # Nouveaux mappings pour la vision, le cache et le reasoning budget :
+      - LLAMA_ARG_IMAGE_MIN_TOKENS=${IMAGE_MIN_TOKENS}
+      - LLAMA_ARG_REASONING_BUDGET=${REASONING_BUDGET}
+      - LLAMA_ARG_KV_UNIFIED=${KV_UNIFIED}
     volumes:
-      # Monte le dossier des modèles sur l'hôte
       - ${LLAMA_MODELS:-./models}:/models
-      # Monte le dossier de cache Hugging Face sur l'hôte
       - ${LLAMA_CACHE:-./cache}:/cache
     ports:
-      - "${PORT:-8080}:${PORT:-8080}"
+      - "${PORT}:${PORT}"
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              device_ids: ['0']
               capabilities: [gpu]
     restart: unless-stopped
