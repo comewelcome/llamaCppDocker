@@ -14,6 +14,7 @@ services:
       - LLAMA_ARG_PORT=${PORT}
       - LLAMA_ARG_CTX_SIZE=${CTX_SIZE}
       - LLAMA_ARG_N_GPU_LAYERS=${GPU_LAYERS}
+      - LLAMA_ARG_TENSOR_SPLIT=${TENSOR_SPLIT}
       - LLAMA_ARG_THREADS=${THREADS}
       - LLAMA_ARG_BATCH_SIZE=${BATCH_SIZE}
       - LLAMA_ARG_N_PARALLEL=${PARALLEL}
@@ -28,7 +29,6 @@ services:
       - LLAMA_ARG_TOP_P=${TOP_P}
       - LLAMA_ARG_REPEAT_PENALTY=${REPEAT_PENALTY}
       - LLAMA_ARG_PRESENCE_PENALTY=${PRESENCE_PENALTY}
-      # Nouveaux mappings pour la vision, le cache et le reasoning budget :
       - LLAMA_ARG_IMAGE_MIN_TOKENS=${IMAGE_MIN_TOKENS}
       - LLAMA_ARG_REASONING_BUDGET=${REASONING_BUDGET}
       - LLAMA_ARG_KV_UNIFIED=${KV_UNIFIED}
@@ -42,6 +42,6 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              device_ids: ['0']
+              device_ids: ['0','1']
               capabilities: [gpu]
     restart: unless-stopped
