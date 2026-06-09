@@ -36,11 +36,19 @@ services:
       - LLAMA_ARG_REASONING_BUDGET=${REASONING_BUDGET}
       # - LLAMA_ARG_REASONING_BUDGET_MESSAGE=${REASONING_BUDGET_MESSAGE}
       - LLAMA_ARG_KV_UNIFIED=${KV_UNIFIED}
+      - LLAMA_ARG_CTX_CHECKPOINT_N=${CTX_CHECKPOINT_N}
+      - LLAMA_ARG_CACHE_RAM=${CACHE_RAM}
     volumes:
       - ${LLAMA_MODELS:-./models}:/models
       - ${LLAMA_CACHE:-./cache}:/cache
     ports:
       - "${PORT}:${PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
     deploy:
       resources:
         reservations:
