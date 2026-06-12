@@ -1,77 +1,51 @@
 # ============================================================
-# Configuration Llama.cpp Server (Optimisée 2026)
+# Configuration Llama.cpp Server - VRAM ONLY (zéro RAM)
 # ============================================================
 
-# --------------------------------------------------
-# Modèle, Vision et HuggingFace
-# --------------------------------------------------
-MODEL=/models/Qwen3.6-27B-UD-Q4_K_XL.gguf
+MODEL=/models/Qwen3.6-27B-UD-Q4_K_XL.gguf #Qwopus3.6-27B-Coder-MTP-Q5_K_M.gguf
 MMPROJ=/models/mmproj-BF16.gguf
 
-# Fixe l'alignement des objets pour Qwen-VL et accélère la détection
-IMAGE_MIN_TOKENS=2048
+# Force la haute définition pour ne pas perdre les écritures du plan 300 DPI
+IMAGE_MIN_TOKENS=4
+IMAGE_MAX_TOKENS=2048
 
-# --------------------------------------------------
-# Contexte et Performance (Ajusté pour RTX 3090 24 Go)
-# --------------------------------------------------
-# 64k est idéal pour ne pas saturer la VRAM avec les images de Qwen-VL
+# Contexte - réduit pour garder tout en VRAM
 CTX_SIZE=262144
-# Ajusté pour laisser de la place au traitement multimodal et au Speculative Decoding
-GPU_LAYERS=-1
+GPU_LAYERS=99
 THREADS=12
-BATCH_SIZE=2048
+BATCH_SIZE=8192
 PARALLEL=1
-TENSOR_SPLIT=0.80,0.20
-# Activer Flash Attention (1 = Oui, 0 = Non)
 FLASH_ATTENTION=1
 
-# --------------------------------------------------
-# Multi-GPU / Tensor Parallel
-# --------------------------------------------------
-# Répartition tensorielle sur 2 GPUs : 80% sur le premier, 20% sur le second
-# TENSOR_SPLIT=0.80,0.20  # Commented out to allow auto-optimization
+# Répartition Multi-GPU
+TENSOR_SPLIT=1,1
+SPLIT_MODE=row
 
-# --------------------------------------------------
-# Désactivation Totale du Mode Réflexion (Thinking / Reasoning)
-# --------------------------------------------------
-# Force le budget de tokens de réflexion à 0 (Désactive le bloc <think>)
+# Activation de la réflexion
 REASONING=on
-REASONING_BUDGET=128
-REASONING_BUDGET_MESSAGE="\nOkay, I have enough information to answer."
+REASONING_BUDGET=8192
 
-# --------------------------------------------------
-# Cache KV & Unified Memory
-# --------------------------------------------------
-# Active l'unification du cache pour éviter les expulsions ("erased invalidated context")
+# Cache KV - Q8 au lieu de f16 pour économiser 50% de VRAM
 KV_UNIFIED=1
+CACHE_TYPE_K=f16 #q8_0
+CACHE_TYPE_V=f16 #q8_0
+CACHE_RAM=24576
 
-# Types de cache (f16 est recommandé avec Flash Attention pour éviter les bugs d'attention de Qwen)
-CACHE_TYPE_K=q8_0
-CACHE_TYPE_V=q8_0
-
-# --------------------------------------------------
 # Décodage Spéculatif MTP
-# --------------------------------------------------
 SPEC_TYPE=draft-mtp
 SPEC_DRAFT_N_MAX=2
 SPEC_DRAFT_P_MIN=0.0
 
-# --------------------------------------------------
-# Paramètres de Génération (Sans interférence de réflexion)
-# --------------------------------------------------
-TEMP=0.6
+# Paramètres orientés Précision / Factuel
+LLAMA_TEMP=0.6
 TOP_K=20
 TOP_P=0.95
 REPEAT_PENALTY=1.00
 PRESENCE_PENALTY=1.5
 
-# --------------------------------------------------
-# Réseau et Serveur
-# --------------------------------------------------
 PORT=1234
-
-# --------------------------------------------------
-# Stockage
-# --------------------------------------------------
 LLAMA_MODELS=./models
 LLAMA_CACHE=./cache
+
+# Checkpoints contexte
+CTX_CHECKPOINT_N=128
