@@ -1,6 +1,7 @@
 services:
   llama-server:
     image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    pull_policy: always
     container_name: llama-server
     env_file:
       - .env
